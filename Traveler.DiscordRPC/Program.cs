@@ -35,8 +35,8 @@ namespace Traveler.DiscordRPC
                 Timestamps = Timestamps.Now,
                 Buttons = new Button[]
                 {
-                    new Button() { Label = "Join Discord", Url = "https://discord.gg/NRZpu8uyW4" },
-                    new Button() { Label = "Watch Developer Stream", Url = "https://www.twitch.tv/suuyasha" }
+                    new Button() { Label = "Join Discord", Url = "https://discord.gg/GkkUpep889" },
+                    new Button() { Label = "Get it on Steam", Url = "https://store.steampowered.com/app/2184270/Traveler/?beta=1" }
                 }
             });
             rpc.SynchronizeState();

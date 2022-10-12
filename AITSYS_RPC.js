@@ -8,7 +8,7 @@
  * @desc RPC Mode (testing|production)
  * @on Production
  * @off Testing
- * @default false
+ * @default true
  * 
  * @author Lala Sabathil
  *
@@ -58,20 +58,24 @@ Imported.AITSYS_RPC = true;
   }
   var params = parseParameters(PluginManager.parameters('AITSYS_RPC'));
 
-  var ipaddr = params['rpcip'];
+  var production = params['rpcip'];
 
   var gmset = Game_Map.prototype.setup;
   Game_Map.prototype.setup = function(mid) {
     gmset.call(this, mid);
     if($dataMapInfos[$gameMap._mapId].name != null) {
       var name = $dataMapInfos[$gameMap._mapId].name
-      if(ipaddr) {
+      if(production) {
         var ip = '127.0.0.1';
       } else {
         var ip = '88.99.239.173';
       }
       console.log("Transmitting map destination change to |" + ip + "|:" + name);
-      setRPC(name, ip);
+      try {
+        setRPC(name, ip);
+      } catch {
+        console.log("Can't communicate with rpc")
+      }
     }
   };
 

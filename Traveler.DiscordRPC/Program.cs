@@ -87,13 +87,13 @@ class Program
 	}
 
 	/*
- Example Asset when exploring the rotten temple on albehir:
-Assets = new Assets()
-{
-SmallImageKey = "world01-albehir",
-SmallImageText = "On Albehir",
-LargeImageKey = "world01-rottentemple",
-LargeImageText = "Exploring the Rotten Temple"
-},
+	Example Asset when exploring the rotten temple on albehir:
+	Assets = new Assets()
+	{
+		SmallImageKey = "world01-albehir",
+		SmallImageText = "On Albehir",
+		LargeImageKey = "world01-rottentemple",
+		LargeImageText = "Exploring the Rotten Temple"
+	},
 */
 }

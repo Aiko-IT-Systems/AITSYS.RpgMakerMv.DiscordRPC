@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Traveler.DiscordRPC
 {
@@ -54,22 +55,24 @@ namespace Traveler.DiscordRPC
                 {
                     byte[] msg = new byte[24];
                     ns.Read(msg, 0, msg.Length);
-                    string[] mapInfo = Map(msg);
-                    byte[] ret = new byte[mapInfo[0].Length];
-                    ret = Encoding.Default.GetBytes("Updating map to: " + mapInfo[0]);
-                    Console.WriteLine("Map: " + mapInfo[0]);
+                    var mapInfo = msg.BuildMap();
+                    byte[] ret = new byte[mapInfo.LargeMap.Length];
+                    ret = Encoding.Default.GetBytes("Updating map to: " + mapInfo.LargeMap);
+                    Console.WriteLine("Map: " + mapInfo.LargeMap);
                     rpc.UpdateDetails("Exploring the world");
-                    string mapName = ConvertMapName(mapInfo[1]);
+                    string mapName = mapInfo.LargeMap.ConvertMapName();
                     rpc.UpdateState(mapName);
-                    rpc.UpdateLargeAsset(mapInfo[0], mapName);
-                    rpc.UpdateSmallAsset("logo", "Being a traveler");
+                    rpc.UpdateLargeAsset(mapInfo.LargeMap, mapName);
+                    rpc.UpdateSmallAsset(mapInfo.SmallMap, "Being a traveler");
                     rpc.SynchronizeState();
                     ns.Write(ret, 0, ret.Length);
                     ns.Close();
+                    /*
                     if (mapInfo[1] == "null")
                     {
                         running = false;
                     }
+                    */
                 }
             }
             rpc.ClearPresence();
@@ -78,7 +81,7 @@ namespace Traveler.DiscordRPC
             Environment.Exit(0);
 		}
 
-		/*
+        /*
  Example Asset when exploring the rotten temple on albehir:
 Assets = new Assets()
 {
@@ -88,32 +91,5 @@ Assets = new Assets()
 	LargeImageText = "Exploring the Rotten Temple"
 },
 */
-
-
-		static string[] Map(byte[] data)
-        {
-            var mapArray = new string[2];
-            string[] baseArray = Encoding.UTF8.GetString(data).Split('\n');
-            string[] baseDataArray = baseArray[0].Split(' ');
-            string baseMap = baseDataArray[0];
-            string[] baseDetailArray = baseDataArray.Skip(1).ToArray();
-            string baseDetail = string.Join(" ", baseDetailArray);
-
-            mapArray[0] = baseMap;
-            mapArray[1] = baseDetail;
-
-            return mapArray;
-        }
-
-        static string ConvertMapName(string name)
-        {
-            string mapName = name switch
-            {
-                "Lala Test" => "El Test",
-                "menu" => "In Menu",
-                _ => name
-            };
-            return mapName;
-        }
     }
 }

@@ -2,12 +2,31 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ApplicationIcon>traveler-logo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DiscordRichPresence" Version="1.0.175" />
+    <PackageReference Include="DiscordIntegration" Version="2.1.0" />
+    <PackageReference Include="DiscordRichPresence" Version="1.1.3.18" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="discord_game_sdk.bundle">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="discord_game_sdk.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="discord_game_sdk.dll.lib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="discord_game_sdk.dylib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="discord_game_sdk.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

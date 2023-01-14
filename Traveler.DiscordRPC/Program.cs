@@ -1,9 +1,10 @@
-﻿using System;
+﻿using DiscordRPC;
+
+using System;
 using System.Linq;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
-using DiscordRPC;
+using System.Text;
 
 namespace Traveler.DiscordRPC
 {
@@ -11,32 +12,34 @@ namespace Traveler.DiscordRPC
     {
         static void Main()
         {
-            DiscordRpcClient rpc = new DiscordRpcClient("684577660785000503");
-            TcpListener server = new TcpListener(IPAddress.Loopback, 59090);
+			DiscordRpcClient rpc = new("684577660785000503");
+            TcpListener server = new(IPAddress.Loopback, 59090);
 
             rpc.OnReady += (sender, msg) => { Console.WriteLine("Connected to discord with user {0}", msg.User.Username); };
             rpc.OnPresenceUpdate += (sender, msg) => { Console.WriteLine("Presence has been updated! "); };
-            rpc.Initialize();
-            rpc.Invoke();
+            rpc.OnError += (s, e) => Console.WriteLine(e.Message);
+			rpc.Initialize();
+			rpc.RegisterUriScheme("2184270");
+			rpc.Invoke();
+            var random = new Random();
 
-            server.Start();
-
-            rpc.SetPresence(new RichPresence()
+			server.Start();
+			rpc.SetPresence(new()
             {
-                Details = "Playing Traveler",
-                State = "In Menu",
-                Assets = new Assets()
+                Details = null,
+                State = "In menu",
+                Assets = new()
                 {
-                    SmallImageKey = "cute",
-                    SmallImageText = "I am cute",
-                    LargeImageKey = "logo",
-                    LargeImageText = "Traveler"
+                    SmallImageKey = "logo",
+                    SmallImageText = "Traveler",
+                    LargeImageKey = "https://store.steampowered.com/gfxproxy/betagfx/apps/2184270/extras/store_capsule_main.png?t=1673295897",
+                    LargeImageText = "Traveler @Steam"
                 },
                 Timestamps = Timestamps.Now,
                 Buttons = new Button[]
                 {
-                    new Button() { Label = "Join Discord", Url = "https://discord.gg/GkkUpep889" },
-                    new Button() { Label = "Get it on Steam", Url = "https://store.steampowered.com/app/2184270/Traveler/?beta=1" }
+                    new() { Label = "Wishlist on Steam", Url = "steam://store/2184270" },
+                    new() { Label = "Join Discord", Url = "https://discord.gg/CKAEfC4qMr" }
                 }
             });
             rpc.SynchronizeState();
@@ -73,9 +76,21 @@ namespace Traveler.DiscordRPC
             rpc.Deinitialize();
             rpc.Dispose();
             Environment.Exit(0);
-        }
+		}
 
-        static string[] Map(byte[] data)
+		/*
+ Example Asset when exploring the rotten temple on albehir:
+Assets = new Assets()
+{
+	SmallImageKey = "world01-albehir",
+	SmallImageText = "On Albehir",
+	LargeImageKey = "world01-rottentemple",
+	LargeImageText = "Exploring the Rotten Temple"
+},
+*/
+
+
+		static string[] Map(byte[] data)
         {
             var mapArray = new string[2];
             string[] baseArray = Encoding.UTF8.GetString(data).Split('\n');

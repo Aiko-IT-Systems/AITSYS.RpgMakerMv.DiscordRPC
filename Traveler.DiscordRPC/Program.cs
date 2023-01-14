@@ -55,24 +55,31 @@ namespace Traveler.DiscordRPC
                 {
                     byte[] msg = new byte[24];
                     ns.Read(msg, 0, msg.Length);
-                    var mapInfo = msg.BuildMap();
-                    byte[] ret = new byte[mapInfo.LargeMap.Length];
-                    ret = Encoding.Default.GetBytes("Updating map to: " + mapInfo.LargeMap);
-                    Console.WriteLine("Map: " + mapInfo.LargeMap);
+                    var (LargeMap, SmallMap) = msg.BuildMap();
+                    Console.WriteLine($"Main: L::{LargeMap} S::{SmallMap ?? "none"}");
+                    byte[] ret = new byte[LargeMap.Length];
+                    ret = Encoding.Default.GetBytes("Updating map to: " + LargeMap);
                     rpc.UpdateDetails("Exploring the world");
-                    string mapName = mapInfo.LargeMap.ConvertMapName();
+                    string mapName = LargeMap.ConvertMapName();
                     rpc.UpdateState(mapName);
-                    rpc.UpdateLargeAsset(mapInfo.LargeMap, mapName);
-                    rpc.UpdateSmallAsset(mapInfo.SmallMap, "Being a traveler");
+                    var prefix = SmallMap != null ? SmallMap.GetDiscordAssetPrefix() : LargeMap.GetDiscordAssetPrefix();
+                    var la = $"{prefix}{LargeMap.ToLower()}";
+                    if (la.EndsWith("wasteland"))
+                        la += "s";
+                    var sa = SmallMap != null ? prefix + SmallMap.ToLower() : "logo";
+                    if (sa.EndsWith("wasteland"))
+                        sa += "s";
+					Console.WriteLine($"Updating large asset to: {la}");
+					rpc.UpdateLargeAsset(la, LargeMap);
+					Console.WriteLine($"Updating small asset to: {sa}");
+					rpc.UpdateSmallAsset(sa, "Being a traveler");
                     rpc.SynchronizeState();
                     ns.Write(ret, 0, ret.Length);
                     ns.Close();
-                    /*
-                    if (mapInfo[1] == "null")
+                    /*if (LargeMap == "close")
                     {
                         running = false;
-                    }
-                    */
+                    }*/
                 }
             }
             rpc.ClearPresence();

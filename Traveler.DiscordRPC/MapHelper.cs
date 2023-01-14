@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Traveler.DiscordRPC;
 
@@ -14,6 +11,7 @@ internal static class MapHelper
 
 	internal static (string Map, string? SubMap) GetMapDataFromString(this string map_data)
 	{
+		Console.WriteLine(map_data);
 		if (map_data.IsWithSubMap())
 		{
 			var match = MapWithSubnameRegex.Match(map_data);
@@ -33,12 +31,14 @@ internal static class MapHelper
 		=> MapWithSubnameRegex.IsMatch(map_data);
 
 
-	internal static (string LargeMap, string SmallMap) BuildMap(this byte[] data)
+	internal static (string LargeMap, string? SmallMap) BuildMap(this byte[] data)
 	{
-		string[] baseArray = Encoding.UTF8.GetString(data).Split('\n');
+		var recv = Encoding.UTF8.GetString(data);
+		Console.WriteLine($"Handling {recv}");
+		string[] baseArray = recv.Split('\n');
 		var (Map, SubMap) = baseArray[0].GetMapDataFromString();
 
-		return (SubMap ?? Map, SubMap != null ? Map : "logo");
+		return (SubMap?.Replace(" ", "") ?? Map.Replace(" ", ""), SubMap != null ? Map.Replace(" ", "") : null);
 	}
 
 	internal static string ConvertMapName(this string name)
@@ -54,6 +54,7 @@ internal static class MapHelper
 
 	internal static string GetDiscordAssetPrefix(this string map)
 	{
+		Console.WriteLine($"Getting prefix for {map.ToLower()}");
 		var seperator = "-";
 		var prefix = map.ToLower() switch
 		{
@@ -63,6 +64,7 @@ internal static class MapHelper
 			"ignar" => "world03" + seperator,
 			"samudra" => "world04" + seperator,
 			"felliah" => "world05" + seperator,
+			"wasteland" => "world06" + seperator,
 			"wastelands" => "world06" + seperator,
 			"ultima" => "world07" + seperator,
 			"desktop" => "world08" + seperator,

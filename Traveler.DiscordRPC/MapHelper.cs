@@ -18,7 +18,7 @@ internal static class MapHelper
 			var subMap = match.Groups["sub_map"].Value;
 			var map = match.Groups["main_map"].Value;
 			return (map, subMap);
-		} 
+		}
 		else
 		{
 			var match = MapRegex.Match(map_data);

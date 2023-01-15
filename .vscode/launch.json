@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Traveler.DiscordRPC/bin/Debug/netcoreapp3.1/Traveler.DiscordRPC.dll",
+            "program": "${workspaceFolder}/Traveler.DiscordRPC/bin/Debug/net7.0/Traveler.DiscordRPC.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Traveler.DiscordRPC",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

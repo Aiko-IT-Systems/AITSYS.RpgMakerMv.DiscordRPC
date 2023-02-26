@@ -105,7 +105,7 @@ internal class Program
 			//wrapper.Maps = NewMapInfos;
 			Console.WriteLine("Writing new MapInfo.json");
 			wrapper.WriteMapInfo();
-			Console.WriteLine("Done!");
+			Console.WriteLine("Done! Please close RPG Maker without saving and re-open it, otherwise the MapInfos.json will be overriden again :(");
 		}
 		else
 			Console.WriteLine("Maps were empty.");

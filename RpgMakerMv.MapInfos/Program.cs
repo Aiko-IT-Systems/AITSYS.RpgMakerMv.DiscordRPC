@@ -13,6 +13,8 @@ internal class Program
 			Console.WriteLine("Error");
 			Environment.Exit(1);
 		}
+		if (path.Contains("Game.rpgproject"))
+			path = Path.Join(path.Replace("Game.rpgproject", ""), "data", "MapInfos.json");
 		MapWrapper wrapper = new(path);
 		wrapper.GetFileContent();
 		wrapper.GenerateMapInfoList();

@@ -14,18 +14,19 @@ public class MapWrapper
 		MapPath = map_path;
 		try
 		{
+			File.SetAttributes(MapPath, FileAttributes.Normal);
 			MapInfoFile = LoadFile(false);
 		}
 		catch (Exception ex)
 		{
 			Console.WriteLine(ex.Message);
 			Console.WriteLine(ex.StackTrace);
-			Environment.Exit(1);
+			//Environment.Exit(1);
 		}
 	}
 
 	private FileStream LoadFile(bool write)
-		=> write ? File.OpenWrite(MapPath) : File.OpenRead(MapPath);
+		=> write ? File.OpenRead(MapPath) : File.Open(MapPath, FileMode.Open, FileAccess.ReadWrite);
 
 	public void GetFileContent()
 	{

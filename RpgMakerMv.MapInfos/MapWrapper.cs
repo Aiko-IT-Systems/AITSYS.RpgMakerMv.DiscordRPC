@@ -9,7 +9,9 @@ public class MapWrapper
 	internal string MapInfoJson { get; set; } = string.Empty;
 	public List<MapInfo?> Maps { get; set; } = new();
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 	public MapWrapper(string map_path)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 	{
 		MapPath = map_path;
 		try
@@ -26,7 +28,7 @@ public class MapWrapper
 	}
 
 	private FileStream LoadFile(bool write)
-		=> write ? File.OpenRead(MapPath) : File.Open(MapPath, FileMode.Open, FileAccess.ReadWrite);
+		=> write ? File.Create(MapPath) : File.OpenRead(MapPath);
 
 	public void GetFileContent()
 	{
@@ -38,22 +40,23 @@ public class MapWrapper
 
 	public void GenerateMapInfoList()
 	{
-		Maps = JsonConvert.DeserializeObject<List<MapInfo?>>(MapInfoJson);
+		Maps = JsonConvert.DeserializeObject<List<MapInfo?>>(MapInfoJson)!;
 	}
 
 	public void WriteMapInfo()
 	{
 		try
 		{
-			var writeData = JsonConvert.SerializeObject(Maps, Formatting.Indented);
+			var writeData = JsonConvert.SerializeObject(Maps, Formatting.None);
 			using StreamWriter writer = new(LoadFile(true));
 			writer.Write(writeData);
+			writer.Flush();
 		}
 		catch (Exception ex)
 		{
 			Console.WriteLine(ex.Message);
 			Console.WriteLine(ex.StackTrace);
-			Environment.Exit(1);
+			//Environment.Exit(1);
 		}
 	}
 

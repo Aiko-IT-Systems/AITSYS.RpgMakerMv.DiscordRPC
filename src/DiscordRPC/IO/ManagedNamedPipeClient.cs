@@ -1,0 +1,528 @@
+// This file is part of an AITSYS project.
+//
+// Copyright (c) AITSYS
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Pipes;
+using System.Threading;
+
+using DiscordRPC.Logging;
+
+namespace DiscordRPC.IO
+{
+	/// <summary>
+	/// A named pipe client using the .NET framework <see cref="NamedPipeClientStream"/>
+	/// </summary>
+	public sealed class ManagedNamedPipeClient : INamedPipeClient
+	{
+		/// <summary>
+		/// Name format of the pipe
+		/// </summary>
+		const string PIPE_NAME = @"discord-ipc-{0}";
+
+		/// <summary>
+		/// The logger for the Pipe client to use
+		/// </summary>
+		public ILogger Logger { get; set; }
+
+		/// <summary>
+		/// Checks if the client is connected
+		/// </summary>
+		public bool IsConnected
+		{
+			get
+			{
+				//This will trigger if the stream is disabled. This should prevent the lock check
+				if (this._isClosed) return false;
+				lock (this._l_stream)
+				{
+					//We cannot be sure its still connected, so lets double check
+					return this._stream != null && this._stream.IsConnected;
+				}
+			}
+		}
+
+		/// <summary>
+		/// The pipe we are currently connected too.
+		/// </summary>
+		public int ConnectedPipe { get; private set; }
+
+		private NamedPipeClientStream _stream;
+
+		private readonly byte[] _buffer = new byte[PipeFrame.MAX_SIZE];
+
+		private readonly Queue<PipeFrame> _framequeue = new();
+		private readonly object _framequeuelock = new();
+
+		private volatile bool _isDisposed = false;
+		private volatile bool _isClosed = true;
+
+		private readonly object _l_stream = new();
+
+		/// <summary>
+		/// Creates a new instance of a Managed NamedPipe client. Doesn't connect to anything yet, just setups the values.
+		/// </summary>
+		public ManagedNamedPipeClient()
+		{
+			this._buffer = new byte[PipeFrame.MAX_SIZE];
+			this.Logger = new NullLogger();
+			this._stream = null;
+		}
+
+		/// <summary>
+		/// Connects to the pipe
+		/// </summary>
+		/// <param name="pipe"></param>
+		/// <returns></returns>
+		public bool Connect(int pipe)
+		{
+			this.Logger.Trace("ManagedNamedPipeClient.Connection({0})", pipe);
+
+			if (this._isDisposed)
+				throw new ObjectDisposedException("NamedPipe");
+
+			if (pipe > 9)
+				throw new ArgumentOutOfRangeException(nameof(pipe), "Argument cannot be greater than 9");
+
+			if (pipe < 0)
+			{
+				//Iterate until we connect to a pipe
+				for (var i = 0; i < 10; i++)
+				{
+					if (this.AttemptConnection(i) || this.AttemptConnection(i, true))
+					{
+						this.BeginReadStream();
+						return true;
+					}
+				}
+			}
+			else
+			{
+				//Attempt to connect to a specific pipe
+				if (this.AttemptConnection(pipe) || this.AttemptConnection(pipe, true))
+				{
+					this.BeginReadStream();
+					return true;
+				}
+			}
+
+			//We failed to connect
+			return false;
+		}
+
+		/// <summary>
+		/// Attempts a new connection
+		/// </summary>
+		/// <param name="pipe">The pipe number to connect too.</param>
+		/// <param name="isSandbox">Should the connection to a sandbox be attempted?</param>
+		/// <returns></returns>
+		private bool AttemptConnection(int pipe, bool isSandbox = false)
+		{
+			if (this._isDisposed)
+				throw new ObjectDisposedException("_stream");
+
+			//If we are sandbox but we dont support sandbox, then skip
+			var sandbox = isSandbox ? GetPipeSandbox() : "";
+			if (isSandbox && sandbox == null)
+			{
+				this.Logger.Trace("Skipping sandbox connection.");
+				return false;
+			}
+
+			//Prepare the pipename
+			this.Logger.Trace("Connection Attempt {0} ({1})", pipe, sandbox);
+			var pipename = GetPipeName(pipe, sandbox);
+
+			try
+			{
+				//Create the client
+				lock (this._l_stream)
+				{
+					this.Logger.Info("Attempting to connect to '{0}'", pipename);
+					this._stream = new NamedPipeClientStream(".", pipename, PipeDirection.InOut, PipeOptions.Asynchronous);
+					this._stream.Connect(1000);
+
+					//Spin for a bit while we wait for it to finish connecting
+					this.Logger.Trace("Waiting for connection...");
+					do { Thread.Sleep(10); } while (!this._stream.IsConnected);
+				}
+
+				//Store the value
+				this.Logger.Info("Connected to '{0}'", pipename);
+				this.ConnectedPipe = pipe;
+				this._isClosed = false;
+			}
+			catch (Exception e)
+			{
+				//Something happened, try again
+				this.Logger.Error("Failed connection to {0}. {1}", pipename, e.Message);
+				this.Close();
+			}
+
+			this.Logger.Trace("Done. Result: {0}", this._isClosed);
+			return !this._isClosed;
+		}
+
+		/// <summary>
+		/// Starts a read. Can be executed in another thread.
+		/// </summary>
+		private void BeginReadStream()
+		{
+			if (this._isClosed) return;
+			try
+			{
+				lock (this._l_stream)
+				{
+					//Make sure the stream is valid
+					if (this._stream == null || !this._stream.IsConnected) return;
+
+					this.Logger.Trace("Begining Read of {0} bytes", this._buffer.Length);
+					this._stream.BeginRead(this._buffer, 0, this._buffer.Length, new AsyncCallback(this.EndReadStream), this._stream.IsConnected);
+				}
+			}
+			catch (ObjectDisposedException)
+			{
+				this.Logger.Warning("Attempted to start reading from a disposed pipe");
+				return;
+			}
+			catch (InvalidOperationException)
+			{
+				//The pipe has been closed
+				this.Logger.Warning("Attempted to start reading from a closed pipe");
+				return;
+			}
+			catch (Exception e)
+			{
+				this.Logger.Error("An exception occured while starting to read a stream: {0}", e.Message);
+				this.Logger.Error(e.StackTrace);
+			}
+		}
+
+		/// <summary>
+		/// Ends a read. Can be executed in another thread.
+		/// </summary>
+		/// <param name="callback"></param>
+		private void EndReadStream(IAsyncResult callback)
+		{
+			this.Logger.Trace("Ending Read");
+			var bytes = 0;
+
+			try
+			{
+				//Attempt to read the bytes, catching for IO exceptions or dispose exceptions
+				lock (this._l_stream)
+				{
+					//Make sure the stream is still valid
+					if (this._stream == null || !this._stream.IsConnected) return;
+
+					//Read our btyes
+					bytes = this._stream.EndRead(callback);
+				}
+			}
+			catch (IOException)
+			{
+				this.Logger.Warning("Attempted to end reading from a closed pipe");
+				return;
+			}
+			catch (NullReferenceException)
+			{
+				this.Logger.Warning("Attempted to read from a null pipe");
+				return;
+			}
+			catch (ObjectDisposedException)
+			{
+				this.Logger.Warning("Attemped to end reading from a disposed pipe");
+				return;
+			}
+			catch (Exception e)
+			{
+				this.Logger.Error("An exception occured while ending a read of a stream: {0}", e.Message);
+				this.Logger.Error(e.StackTrace);
+				return;
+			}
+
+			//How much did we read?
+			this.Logger.Trace("Read {0} bytes", bytes);
+
+			//Did we read anything? If we did we should enqueue it.
+			if (bytes > 0)
+			{
+				//Load it into a memory stream and read the frame
+				using var memory = new MemoryStream(this._buffer, 0, bytes);
+				try
+				{
+					var frame = new PipeFrame();
+					if (frame.ReadStream(memory))
+					{
+						this.Logger.Trace("Read a frame: {0}", frame.Opcode);
+
+						//Enqueue the stream
+						lock (this._framequeuelock)
+							this._framequeue.Enqueue(frame);
+					}
+					else
+					{
+						this.Logger.Error("Pipe failed to read from the data received by the stream.");
+						this.Close();
+					}
+				}
+				catch (Exception e)
+				{
+					this.Logger.Error("A exception has occured while trying to parse the pipe data: {0}", e.Message);
+					this.Close();
+				}
+			}
+			else
+			{
+				//If we read 0 bytes, its probably a broken pipe. However, I have only confirmed this is the case for MacOSX.
+				// I have added this check here just so the Windows builds are not effected and continue to work as expected.
+				if (IsUnix())
+				{
+					this.Logger.Error("Empty frame was read on {0}, aborting.", Environment.OSVersion);
+					this.Close();
+				}
+				else
+				{
+					this.Logger.Warning("Empty frame was read. Please send report to Lachee.");
+				}
+			}
+
+			//We are still connected, so continue to read
+			if (!this._isClosed && this.IsConnected)
+			{
+				this.Logger.Trace("Starting another read");
+				this.BeginReadStream();
+			}
+		}
+
+		/// <summary>
+		/// Reads a frame, returning false if none are available
+		/// </summary>
+		/// <param name="frame"></param>
+		/// <returns></returns>
+		public bool ReadFrame(out PipeFrame frame)
+		{
+			if (this._isDisposed)
+				throw new ObjectDisposedException("_stream");
+
+			//Check the queue, returning the pipe if we have anything available. Otherwise null.
+			lock (this._framequeuelock)
+			{
+				if (this._framequeue.Count == 0)
+				{
+					//We found nothing, so just default and return null
+					frame = default;
+					return false;
+				}
+
+				//Return the dequed frame
+				frame = this._framequeue.Dequeue();
+				return true;
+			}
+		}
+
+		/// <summary>
+		/// Writes a frame to the pipe
+		/// </summary>
+		/// <param name="frame"></param>
+		/// <returns></returns>
+		public bool WriteFrame(PipeFrame frame)
+		{
+			if (this._isDisposed)
+				throw new ObjectDisposedException("_stream");
+
+			//Write the frame. We are assuming proper duplex connection here
+			if (this._isClosed || !this.IsConnected)
+			{
+				this.Logger.Error("Failed to write frame because the stream is closed");
+				return false;
+			}
+
+			try
+			{
+				//Write the pipe
+				//This can only happen on the main thread so it should be fine.
+				frame.WriteStream(this._stream);
+				return true;
+			}
+			catch (IOException io)
+			{
+				this.Logger.Error("Failed to write frame because of a IO Exception: {0}", io.Message);
+			}
+			catch (ObjectDisposedException)
+			{
+				this.Logger.Warning("Failed to write frame as the stream was already disposed");
+			}
+			catch (InvalidOperationException)
+			{
+				this.Logger.Warning("Failed to write frame because of a invalid operation");
+			}
+
+			//We must have failed the try catch
+			return false;
+		}
+
+		/// <summary>
+		/// Closes the pipe
+		/// </summary>
+		public void Close()
+		{
+			//If we are already closed, jsut exit
+			if (this._isClosed)
+			{
+				this.Logger.Warning("Tried to close a already closed pipe.");
+				return;
+			}
+
+			//flush and dispose			
+			try
+			{
+				//Wait for the stream object to become available.
+				lock (this._l_stream)
+				{
+					if (this._stream != null)
+					{
+						try
+						{
+							//Stream isn't null, so flush it and then dispose of it.\
+							// We are doing a catch here because it may throw an error during this process and we dont care if it fails.
+							this._stream.Flush();
+							this._stream.Dispose();
+						}
+						catch (Exception)
+						{
+							//We caught an error, but we dont care anyways because we are disposing of the stream.
+						}
+
+						//Make the stream null and set our flag.
+						this._stream = null;
+						this._isClosed = true;
+					}
+					else
+					{
+						//The stream is already null?
+						this.Logger.Warning("Stream was closed, but no stream was available to begin with!");
+					}
+				}
+			}
+			catch (ObjectDisposedException)
+			{
+				//ITs already been disposed
+				this.Logger.Warning("Tried to dispose already disposed stream");
+			}
+			finally
+			{
+				//For good measures, we will mark the pipe as closed anyways
+				this._isClosed = true;
+				this.ConnectedPipe = -1;
+			}
+		}
+
+		/// <summary>
+		/// Disposes of the stream
+		/// </summary>
+		public void Dispose()
+		{
+			//Prevent double disposing
+			if (this._isDisposed) return;
+
+			//Close the stream (disposing of it too)
+			if (!this._isClosed) this.Close();
+
+			//Dispose of the stream if it hasnt been destroyed already.
+			lock (this._l_stream)
+			{
+				if (this._stream != null)
+				{
+					this._stream.Dispose();
+					this._stream = null;
+				}
+			}
+
+			//Set our dispose flag
+			this._isDisposed = true;
+		}
+
+		/// <summary>
+		/// Returns a platform specific path that Discord is hosting the IPC on.
+		/// </summary>
+		/// <param name="pipe">The pipe number.</param>
+		/// <param name="sandbox">The sandbox environment the pipe is in</param>
+		/// <returns></returns>
+		public static string GetPipeName(int pipe, string sandbox)
+		{
+			return !IsUnix()
+				? sandbox + string.Format(PIPE_NAME, pipe)
+				: Path.Combine(GetTemporaryDirectory(), sandbox + string.Format(PIPE_NAME, pipe));
+		}
+
+		/// <summary>
+		/// returns a platform specific path that Discord is hosting the IPC on.
+		/// </summary>
+		/// <param name="pipe">The pipe number</param>
+		/// <returns></returns>
+		public static string GetPipeName(int pipe)
+			=> GetPipeName(pipe, "");
+
+		/// <summary>
+		/// Gets the name of the possible sandbox enviroment the pipe might be located within. If the platform doesn't support sandboxed Discord, then it will return null.
+		/// </summary>
+		/// <returns></returns>
+		public static string GetPipeSandbox()
+		{
+			return Environment.OSVersion.Platform switch
+			{
+				PlatformID.Unix => "snap.discord/",
+				_ => null,
+			};
+		}
+
+		/// <summary>
+		/// Gets the temporary path for the current enviroment. Only applicable for UNIX based systems.
+		/// </summary>
+		/// <returns></returns>
+		private static string GetTemporaryDirectory()
+		{
+			string temp = null;
+			temp ??= Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR");
+			temp ??= Environment.GetEnvironmentVariable("TMPDIR");
+			temp ??= Environment.GetEnvironmentVariable("TMP");
+			temp ??= Environment.GetEnvironmentVariable("TEMP");
+			temp ??= "/tmp";
+			return temp;
+		}
+
+		/// <summary>
+		/// Returns true if the current OS platform is Unix based (Unix or MacOSX).
+		/// </summary>
+		/// <returns></returns>
+		public static bool IsUnix()
+		{
+			return Environment.OSVersion.Platform switch
+			{
+				PlatformID.Unix or PlatformID.MacOSX => true,
+				_ => false,
+			};
+		}
+	}
+}

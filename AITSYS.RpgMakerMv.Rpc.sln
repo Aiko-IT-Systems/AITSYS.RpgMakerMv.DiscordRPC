@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33103.201
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AITSYS.RpgMakerMv.Rpc", "src\AITSYS.RpgMakerMv.DiscordRPC\AITSYS.RpgMakerMv.Rpc.csproj", "{C40CC038-9400-4213-B24E-5A3245115F77}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AITSYS.RpgMakerMv.MapInfos", "src\AITSYS.RpgMakerMv.MapInfos\AITSYS.RpgMakerMv.MapInfos.csproj", "{5D2A879F-A2C1-47B0-B017-372AC9C389E6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DiscordRPC", "src\DiscordRPC\DiscordRPC.csproj", "{6673FD36-A922-4422-A8BE-14420773D5A6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6C1B17A7-13CE-4FA4-9DF9-873F3F74C05F}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RPG Maker MV Plugins", "RPG Maker MV Plugins", "{94FAABDB-8347-4B18-A4D2-1C84E321AFF9}"
+	ProjectSection(SolutionItems) = preProject
+		plugins\AITSYS_RPC.js = plugins\AITSYS_RPC.js
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C40CC038-9400-4213-B24E-5A3245115F77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C40CC038-9400-4213-B24E-5A3245115F77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C40CC038-9400-4213-B24E-5A3245115F77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C40CC038-9400-4213-B24E-5A3245115F77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D2A879F-A2C1-47B0-B017-372AC9C389E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D2A879F-A2C1-47B0-B017-372AC9C389E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D2A879F-A2C1-47B0-B017-372AC9C389E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D2A879F-A2C1-47B0-B017-372AC9C389E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6673FD36-A922-4422-A8BE-14420773D5A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6673FD36-A922-4422-A8BE-14420773D5A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6673FD36-A922-4422-A8BE-14420773D5A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6673FD36-A922-4422-A8BE-14420773D5A6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {169D8C0B-5AFF-4A6E-BDB1-623F15ED6343}
+	EndGlobalSection
+EndGlobal

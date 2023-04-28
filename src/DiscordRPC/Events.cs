@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 using DiscordRPC.Message;
-using DiscordRPC.RPC;
 
 namespace DiscordRPC.Events
 {

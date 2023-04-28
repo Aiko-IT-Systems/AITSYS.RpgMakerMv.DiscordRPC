@@ -93,26 +93,37 @@ public class Rpc
 
 			while (client.Connected)
 			{
-				var msg = new byte[8192];
-				ns.Read(msg, 0, msg.Length);
-				var data = Encoding.UTF8.GetString(msg);
-				var command = JsonConvert.DeserializeObject<RpcCommand>(data)!;
-				Console.WriteLine(JsonConvert.SerializeObject(command, Formatting.Indented));
-
-				if (command.CommandType == RpcCommandType.SetConfig)
+				try
 				{
+					var msg = new byte[8192];
+					ns.Read(msg, 0, msg.Length);
+					var data = Encoding.UTF8.GetString(msg);
+					var command = JsonConvert.DeserializeObject<RpcCommand>(data)!;
+					Console.WriteLine(JsonConvert.SerializeObject(command, Formatting.Indented));
 
+					if (command.CommandType == RpcCommandType.SetConfig)
+					{
+
+					}
+					else if (command.CommandType == RpcCommandType.SetData)
+					{
+
+					}
+					else if (command.CommandType == RpcCommandType.Shutdown)
+						running = false;
+
+					var response = Encoding.Default.GetBytes(JsonConvert.SerializeObject(new RpcResponse(RpcResponseType.Success)));
+					ns.Write(response, 0, response.Length);
 				}
-				else if (command.CommandType == RpcCommandType.SetData)
+				catch (Exception ex)
 				{
-
+					var response = Encoding.Default.GetBytes(JsonConvert.SerializeObject(new RpcResponse(RpcResponseType.Failure, ex.Message)));
+					ns.Write(response, 0, response.Length);
 				}
-				else if (command.CommandType == RpcCommandType.Shutdown)
-					running = false;
-
-				var response = Encoding.Default.GetBytes("""{"handled": true}""");
-				ns.Write(response, 0, response.Length);
-				ns.Close();
+				finally
+				{
+					ns.Close();
+				}
 			}
 		}
 		rpc.ClearPresence();

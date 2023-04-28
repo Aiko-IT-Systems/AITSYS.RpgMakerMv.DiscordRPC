@@ -100,7 +100,7 @@ public class MapWrapper
 		Console.Write("Rpc state (i.e. Exploring World X): ");
 		var d = Console.ReadLine();
 		Console.WriteLine();
-		Console.WriteLine("Rpc details (i.e. In Dungeon)");
+		Console.Write("Rpc details (i.e. In Dungeon): ");
 		var s = Console.ReadLine();
 		Console.WriteLine();
 		return new ParamData(sak, sat, lak, lat, d, s);

@@ -44,7 +44,7 @@ public class MapInfoGenerator
 		MapWrapper wrapper = new(path);
 		wrapper.GetFileContent();
 		wrapper.GenerateMapInfoList();
-		Console.ForegroundColor = ConsoleColor.Blue;
+		Console.ForegroundColor = ConsoleColor.White;
 		Console.Write("Populate rpc config for all maps (Skips question for every single map) [Y/N]: ");
 		var res = Console.ReadKey();
 		var setDefault = res.Key == ConsoleKey.Y ? new('N', ConsoleKey.N, false, false, false) : (ConsoleKeyInfo?)null;

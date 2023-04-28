@@ -48,6 +48,7 @@ public class MapInfoGenerator
 		Console.Write("Populate rpc config for all maps (Skips question for every single map) [Y/N]: ");
 		var res = Console.ReadKey();
 		var setDefault = res.Key == ConsoleKey.Y ? new('N', ConsoleKey.N, false, false, false) : (ConsoleKeyInfo?)null;
+		Console.WriteLine();
 		List<MapInfo?> NewMapInfos = new();
 		if (wrapper != null && wrapper.Maps != null && wrapper.Maps.Any())
 		{
@@ -60,6 +61,7 @@ public class MapInfoGenerator
 				}
 				else
 				{
+					Console.ForegroundColor = ConsoleColor.Blue;
 					Console.WriteLine($"Map {map.Name} [{map.Id}]");
 					Console.WriteLine($"Generating template rpc config for map {map.Id}");
 					if (!map.Params.Any())

@@ -84,18 +84,25 @@ public class MapWrapper
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Meow")]
 	public ParamData SetParams()
 	{
+		Console.WriteLine();
 		Console.Write("Small asset key: ");
 		var sak = Console.ReadLine();
+		Console.WriteLine();
 		Console.Write("Small asset text (i.e. Worldname): ");
 		var sat = Console.ReadLine();
+		Console.WriteLine();
 		Console.Write("Large asset key: ");
 		var lak = Console.ReadLine();
+		Console.WriteLine();
 		Console.Write("Large asset text (i.e. Regionname): ");
 		var lat = Console.ReadLine();
+		Console.WriteLine();
 		Console.Write("Rpc state (i.e. Exploring World X): ");
 		var d = Console.ReadLine();
+		Console.WriteLine();
 		Console.WriteLine("Rpc details (i.e. In Dungeon)");
 		var s = Console.ReadLine();
+		Console.WriteLine();
 		return new ParamData(sak, sat, lak, lat, d, s);
 	}
 

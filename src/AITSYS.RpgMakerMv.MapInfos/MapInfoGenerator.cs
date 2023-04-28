@@ -72,7 +72,7 @@ public class MapInfoGenerator
 						Console.Write("Set data [Y/N]: ");
 						var set = setDefault ?? Console.ReadKey();
 						var data = set.Key == ConsoleKey.Y ? wrapper.SetParams() : wrapper.SetEmptyParams();
-						Console.WriteLine("");
+						Console.WriteLine();
 						Console.WriteLine("Working..");
 						map.Params = new()
 						{
@@ -102,7 +102,7 @@ public class MapInfoGenerator
 						else
 						{
 							Console.ForegroundColor = ConsoleColor.Yellow;
-							Console.WriteLine("");
+							Console.WriteLine();
 							Console.WriteLine("Skipping..");
 						}
 						NewMapInfos.Add(map);
@@ -115,7 +115,7 @@ public class MapInfoGenerator
 						Console.Write("Set data [Y/N]: ");
 						var set = setDefault ?? Console.ReadKey();
 						var data = set.Key == ConsoleKey.Y ? wrapper.SetParams() : wrapper.SetEmptyParams();
-						Console.WriteLine("");
+						Console.WriteLine();
 						Console.WriteLine("Working..");
 						map.Params.Add(new Param()
 						{

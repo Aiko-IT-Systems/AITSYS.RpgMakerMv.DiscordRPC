@@ -76,7 +76,7 @@ public class Rpc
 			sender.SynchronizeState();
 		};
 		rpc.OnPresenceUpdate += (sender, msg) => Console.WriteLine("Presence has been updated!");
-		rpc.OnError += (s, e) => Console.WriteLine(e.Message);
+		rpc.OnError += (sender, e) => Console.WriteLine(e.Message);
 		rpc.Initialize();
 		if (s_sapp != null)
 			rpc.RegisterUriScheme(s_sapp);

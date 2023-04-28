@@ -26,12 +26,12 @@ namespace AITSYS.RpgMakerMv.Rpc.Entities;
 
 public class RpcCommand
 {
-	[JsonProperty("rpc_cmd")]
+	[JsonProperty("rpc_cmd", Required = Required.Always)]
 	public RpcCommandType CommandType { get; internal set; }
 
-	[JsonProperty("rpc_data", NullValueHandling = NullValueHandling.Ignore)]
+	[JsonProperty("rpc_data", NullValueHandling = NullValueHandling.Ignore, Required = Required.DisallowNull)]
 	public RpcData? RpcData { get; internal set; } = null;
 
-	[JsonProperty("rpc_config", NullValueHandling = NullValueHandling.Ignore)]
+	[JsonProperty("rpc_config", NullValueHandling = NullValueHandling.Ignore, Required = Required.DisallowNull)]
 	public RpcConfig? RpcConfig { get; internal set; } = null;
 }

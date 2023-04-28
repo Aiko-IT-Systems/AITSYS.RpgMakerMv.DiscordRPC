@@ -32,8 +32,9 @@ public class Rpc
 	public static Timestamps s_startedAt { get; private set; } = null!;
 	public static string s_dapp { get; private set; } = "805569792446562334";
 	public static string? s_sapp { get; private set; } = null;
+	public static CancellationTokenSource s_cancellationToken { get; private set; } = new();
 
-	public static void Main(string[] args)
+	public static async Task Main(string[] args)
 	{
 		if (args.Length != 0)
 			for (var i = 0; i < args.Length; i++)
@@ -84,19 +85,19 @@ public class Rpc
 
 		server.Start();
 
-		var running = true;
-		while (running)
+		while (!s_cancellationToken.IsCancellationRequested)
 		{
-			var client = server.AcceptTcpClient();
+			var client = await server.AcceptTcpClientAsync(s_cancellationToken.Token);
 
 			var ns = client.GetStream();
 
 			while (client.Connected)
 			{
+				var shutdownRequested = false;
 				try
 				{
 					var msg = new byte[8192];
-					ns.Read(msg, 0, msg.Length);
+					await ns.ReadAsync(msg, s_cancellationToken.Token);
 					var data = Encoding.UTF8.GetString(msg);
 					var command = JsonConvert.DeserializeObject<RpcCommand>(data)!;
 					Console.WriteLine(JsonConvert.SerializeObject(command, Formatting.Indented));
@@ -110,19 +111,21 @@ public class Rpc
 
 					}
 					else if (command.CommandType == RpcCommandType.Shutdown)
-						running = false;
+						shutdownRequested = true;
 
 					var response = Encoding.Default.GetBytes(JsonConvert.SerializeObject(new RpcResponse(RpcResponseType.Success)));
-					ns.Write(response, 0, response.Length);
+					await ns.WriteAsync(response, s_cancellationToken.Token);
 				}
 				catch (Exception ex)
 				{
 					var response = Encoding.Default.GetBytes(JsonConvert.SerializeObject(new RpcResponse(RpcResponseType.Failure, ex.Message)));
-					ns.Write(response, 0, response.Length);
+					await ns.WriteAsync(response, s_cancellationToken.Token);
 				}
 				finally
 				{
 					ns.Close();
+					if (shutdownRequested)
+						s_cancellationToken.Cancel();
 				}
 			}
 		}

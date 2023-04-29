@@ -104,10 +104,14 @@ public class Rpc
 
 					if (command.CommandType == RpcCommandType.SetConfig)
 					{
+						if (command.RpcConfig == null)
+							throw new InvalidDataException("Rpc config was null");
 
 					}
 					else if (command.CommandType == RpcCommandType.SetData)
 					{
+						if (command.RpcData == null)
+							throw new InvalidDataException("Rpc data was null");
 
 					}
 					else if (command.CommandType == RpcCommandType.Shutdown)
@@ -118,8 +122,13 @@ public class Rpc
 				}
 				catch (Exception ex)
 				{
-					var response = Encoding.Default.GetBytes(JsonConvert.SerializeObject(new RpcResponse(RpcResponseType.Failure, ex.Message)));
-					await ns.WriteAsync(response, s_cancellationToken.Token);
+					try
+					{
+						var response = Encoding.Default.GetBytes(JsonConvert.SerializeObject(new RpcResponse(RpcResponseType.Failure, ex.Message)));
+						await ns.WriteAsync(response, s_cancellationToken.Token);
+					}
+					catch (Exception)
+					{ }
 				}
 				finally
 				{

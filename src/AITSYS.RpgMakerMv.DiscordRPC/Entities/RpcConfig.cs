@@ -35,10 +35,4 @@ public class RpcConfig
 
 	[JsonProperty("button_two_config", NullValueHandling = NullValueHandling.Ignore)]
 	public RpcButtonConfig? ButtonTwo { get; internal set; } = null;
-
-	[JsonProperty("steam_app_id", NullValueHandling = NullValueHandling.Ignore)]
-	public string? SteamAppId { get; internal set; } = null;
-
-	[JsonProperty("discord_app_id")]
-	public string DiscordAppId { get; internal set; } = null!;
 }

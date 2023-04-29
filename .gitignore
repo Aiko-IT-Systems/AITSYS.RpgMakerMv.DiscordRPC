@@ -339,3 +339,4 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+src/AITSYS.RpgMakerMv.DiscordRPC/Properties/launchSettings.json

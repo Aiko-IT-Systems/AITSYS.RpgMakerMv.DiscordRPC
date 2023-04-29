@@ -27,8 +27,8 @@ namespace AITSYS.RpgMakerMv.Rpc;
 
 public class Rpc
 {
-	public static RpcData? s_defaultInfo { get; private set; } = null!;
-	public static RpcConfig s_defaultConfig { get; private set; } = null!;
+	public static RpcData? s_defaultData { get; private set; } = null!;
+	public static RpcConfig? s_defaultConfig { get; private set; } = null!;
 	public static Timestamps s_startedAt { get; private set; } = null!;
 	public static string s_dapp { get; private set; } = "805569792446562334";
 	public static string? s_sapp { get; private set; } = null;
@@ -56,23 +56,26 @@ public class Rpc
 		rpc.OnReady += (sender, msg) =>
 		{
 			Console.WriteLine("Connected to discord with user {0}#{1}", msg.User.Username, msg.User.Discriminator);
+
+			var buttons = Array.Empty<Button>();
+			if (s_defaultConfig?.UseButtonOne ?? true)
+				buttons = buttons.Append(new() { Label = s_defaultConfig?.ButtonOne?.Label ?? "Get RPC Extension", Url = s_defaultConfig?.ButtonOne?.Url ?? "https://github.com/Aiko-IT-Systems/AITSYS.RpgMakerMv.Rpc" }).ToArray();
+			if (s_defaultConfig?.UseButtonTwo ?? true)
+				buttons = buttons.Append(new() { Label = s_defaultConfig?.ButtonTwo?.Label ?? "RPC Extension Support", Url = s_defaultConfig?.ButtonTwo?.Url ?? "https://discord.gg/Uk7sggRBTm" }).ToArray();
+
 			sender.SetPresence(new()
 			{
-				Details = s_defaultInfo?.Details ?? "Playing Game",
-				State = s_defaultInfo?.State ?? null,
+				Details = s_defaultData?.Details ?? "Playing Game",
+				State = s_defaultData?.State ?? null,
 				Assets = new()
 				{
-					SmallImageKey = s_defaultInfo?.SmallAssetKey ?? "logo",
-					SmallImageText = s_defaultInfo?.SmallAssetText ?? "RMMV Game",
-					LargeImageKey = s_defaultInfo?.LargeAssetKey,
-					LargeImageText = s_defaultInfo?.LargeAssetKey
+					SmallImageKey = s_defaultData?.SmallAssetKey ?? "logo",
+					SmallImageText = s_defaultData?.SmallAssetText ?? "RMMV Game",
+					LargeImageKey = s_defaultData?.LargeAssetKey,
+					LargeImageText = s_defaultData?.LargeAssetKey
 				},
 				Timestamps = s_startedAt,
-				Buttons = new Button[]
-				{
-					new() { Label = "Get RPC Extension", Url = "https://github.com/Aiko-IT-Systems/AITSYS.RpgMakerMv.Rpc" },
-					new() { Label = "RPC Extension Support", Url = "https://discord.gg/Uk7sggRBTm" }
-				}
+				Buttons = buttons
 			});
 			sender.SynchronizeState();
 		};
@@ -106,13 +109,23 @@ public class Rpc
 					{
 						if (command.RpcConfig == null)
 							throw new InvalidDataException("Rpc config was null");
-
+						s_defaultConfig = command.RpcConfig;
+						var buttons = Array.Empty<Button>();
+						if (command.RpcConfig.UseButtonOne)
+							buttons = buttons.Append(new() { Label = command.RpcConfig.ButtonOne!.Label, Url = command.RpcConfig.ButtonOne!.Url }).ToArray();
+						if (command.RpcConfig.UseButtonTwo)
+							buttons = buttons.Append(new() { Label = command.RpcConfig.ButtonTwo!.Label, Url = command.RpcConfig.ButtonTwo!.Url }).ToArray();
+						rpc.UpdateButtons(buttons);
 					}
 					else if (command.CommandType == RpcCommandType.SetData)
 					{
 						if (command.RpcData == null)
 							throw new InvalidDataException("Rpc data was null");
-
+						s_defaultData = command.RpcData;
+						rpc.UpdateSmallAsset(command.RpcData.SmallAssetKey, command.RpcData.SmallAssetText);
+						rpc.UpdateLargeAsset(command.RpcData.LargeAssetKey, command.RpcData.LargeAssetText);
+						rpc.UpdateDetails(command.RpcData.Details);
+						rpc.UpdateState(command.RpcData.State);
 					}
 					else if (command.CommandType == RpcCommandType.Shutdown)
 						shutdownRequested = true;

@@ -58,8 +58,8 @@ public class Rpc
 			Console.WriteLine("Connected to discord with user {0}#{1}", msg.User.Username, msg.User.Discriminator);
 			sender.SetPresence(new()
 			{
-				Details = s_defaultInfo?.Details ?? null,
-				State = s_defaultInfo?.State ?? "Playing",
+				Details = s_defaultInfo?.Details ?? "Playing Game",
+				State = s_defaultInfo?.State ?? null,
 				Assets = new()
 				{
 					SmallImageKey = s_defaultInfo?.SmallAssetKey ?? "logo",

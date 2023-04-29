@@ -12,6 +12,11 @@ on:
         description: 'Build version'
         required: true
         type: string
+      upload_to_steam:
+        description: 'Upload to Steam'
+        required: true
+        default: false
+        type: boolean
 
 permissions: write-all
 
@@ -31,6 +36,7 @@ jobs:
           dotnet publish -r linux-x64 --self-contained=true -p:PublishSingleFile=true -p:GenerateRuntimeConfigurationFiles=false -c Release -o "./dist/RPC Plugin" ./src/AITSYS.RpgMakerMv.DiscordRPC/AITSYS.RpgMakerMv.Rpc.csproj
       - name: "Deploy to Steam"
         uses: lulalaby/steam-deploy@v6
+        if: ${{ inputs.upload_to_steam == true }}
         id: actual_steam_deploy
         with:
           username: ${{ secrets.STEAM_PARTNER_USERNAME }}
@@ -44,17 +50,12 @@ jobs:
           firstDepotIdOverride: 2184300
           depot1Path: dist
           releaseBranch: "develop"
-      - name: "Get Steam Build ID"
-        id: get_steam_build_id
-        run: |
-          cd BuildOutput
-          echo "steam_build_id=$(tail -1 app_build_2184270.log | cut -d "("  -f 2 | cut -d ")" -f 1 | cut -d " " -f 2)" >> $GITHUB_OUTPUT
       - name: "Create GitHub Release"
         uses: softprops/action-gh-release@v1
         with:
           body: RMMV RPC Release - ${{ inputs.build_description }}
           tag_name: v${{ inputs.build_version }}
-          name: Version ${{ inputs.build_version }}@${{ steps.get_steam_build_id.outputs.steam_build_id }}
+          name: Version ${{ inputs.build_version }}
           prerelease: true
           generate_release_notes: true
           files: |

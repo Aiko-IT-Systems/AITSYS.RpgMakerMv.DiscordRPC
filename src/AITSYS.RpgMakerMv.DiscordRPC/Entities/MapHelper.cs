@@ -24,8 +24,8 @@ namespace AITSYS.RpgMakerMv.Rpc;
 
 internal static partial class MapHelper
 {
-	internal static Regex MapWithSubnameRegex = MapWithSubnameRegexp();
-	internal static Regex MapRegex = MapRegexp();
+	internal static Regex MapWithSubnameRegex = new("^(?<main_map>[\\w ]+) / {1}(?<sub_map>[\\w ]+)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+	internal static Regex MapRegex = new("^(?<map>[\\w ]+)$", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled);
 
 	internal static (string Map, string? SubMap) GetMapDataFromString(this string map_data)
 	{
@@ -90,10 +90,4 @@ internal static partial class MapHelper
 		};
 		return prefix;
 	}
-
-	[GeneratedRegex("^(?<main_map>[\\w ]+) / {1}(?<sub_map>[\\w ]+)$", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
-	private static partial Regex MapWithSubnameRegexp();
-
-	[GeneratedRegex("^(?<map>[\\w ]+)$", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled)]
-	private static partial Regex MapRegexp();
 }

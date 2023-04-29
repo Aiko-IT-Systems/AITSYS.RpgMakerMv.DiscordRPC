@@ -1,0 +1,62 @@
+name: "Deployment"
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_description:
+        description: 'Build description'
+        required: true
+        default: 'No information given'
+        type: string
+      build_version:
+        description: 'Build version'
+        required: true
+        type: string
+
+permissions: write-all
+
+jobs:
+  deploy:
+    name: "Deployment"
+    runs-on: self-hosted
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v3
+      - name: "Restore & build project"
+        run: |
+          dotnet build -c Release ./src/AITSYS.RpgMakerMv.DiscordRPC/AITSYS.RpgMakerMv.Rpc.csproj
+      - name: "Publish project"
+        run: |
+          dotnet publish -r win-x64 --self-contained=true -p:PublishSingleFile=true -p:GenerateRuntimeConfigurationFiles=false -c Release -o "./dist/RPC Plugin" ./src/AITSYS.RpgMakerMv.DiscordRPC/AITSYS.RpgMakerMv.Rpc.csproj
+          dotnet publish -r linux-x64 --self-contained=true -p:PublishSingleFile=true -p:GenerateRuntimeConfigurationFiles=false -c Release -o "./dist/RPC Plugin" ./src/AITSYS.RpgMakerMv.DiscordRPC/AITSYS.RpgMakerMv.Rpc.csproj
+      - name: "Deploy to Steam"
+        uses: lulalaby/steam-deploy@v6
+        id: actual_steam_deploy
+        with:
+          username: ${{ secrets.STEAM_PARTNER_USERNAME }}
+          password: ${{ secrets.STEAM_PARTNER_PASSWORD }}
+          configVdf: ${{ secrets.STEAM_PARTNER_CONFIG_VDF }}
+          ssfnFileName: ${{ secrets.STEAM_PARTNER_SSFN_FILE_NAME }}
+          ssfnFileContents: ${{ secrets.STEAM_PARTNER_SSFN_FILE_CONTENTS }}
+          appId: 2184270
+          buildDescription: v${{ inputs.build_version }} - ${{ inputs.build_description }}
+          rootPath: ./
+          firstDepotIdOverride: 2184300
+          depot1Path: dist
+          releaseBranch: "develop"
+      - name: "Get Steam Build ID"
+        id: get_steam_build_id
+        run: |
+          cd BuildOutput
+          echo "steam_build_id=$(tail -1 app_build_2184270.log | cut -d "("  -f 2 | cut -d ")" -f 1 | cut -d " " -f 2)" >> $GITHUB_OUTPUT
+      - name: "Create GitHub Release"
+        uses: softprops/action-gh-release@v1
+        with:
+          body: RMMV RPC Release - ${{ inputs.build_description }}
+          tag_name: v${{ inputs.build_version }}
+          name: Version ${{ inputs.build_version }}@${{ steps.get_steam_build_id.outputs.steam_build_id }}
+          prerelease: true
+          generate_release_notes: true
+          files: |
+            ./dist/RPC Plugin/AITSYS.RpgMakerMv.Rpc
+            ./dist/RPC Plugin/AITSYS.RpgMakerMv.Rpc.exe

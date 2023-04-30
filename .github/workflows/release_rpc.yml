@@ -1,4 +1,4 @@
-name: "Deployment"
+name: "Release RPC"
 
 on:
   workflow_dispatch:
@@ -21,8 +21,8 @@ on:
 permissions: write-all
 
 jobs:
-  deploy:
-    name: "Deployment"
+  release:
+    name: Release RPC V${{ inputs.build_version }}
     runs-on: self-hosted
     steps:
       - name: "Checkout repository"
@@ -54,10 +54,12 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           body: RMMV RPC Release - ${{ inputs.build_description }}
-          tag_name: v${{ inputs.build_version }}
-          name: Version ${{ inputs.build_version }}
+          tag_name: rmmv-rpc-v${{ inputs.build_version }}
+          name: RMMV Discord RPC v${{ inputs.build_version }}
           prerelease: true
           generate_release_notes: true
           files: |
             ./dist/RPC Plugin/AITSYS.RpgMakerMv.Rpc
             ./dist/RPC Plugin/AITSYS.RpgMakerMv.Rpc.exe
+            ./src/AITSYS_RPC.js
+            ./static/README-RPC.txt

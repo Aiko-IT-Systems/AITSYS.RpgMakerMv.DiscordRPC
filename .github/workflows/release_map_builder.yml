@@ -1,0 +1,55 @@
+name: "Release Map Builder"
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_description:
+        description: 'Build description'
+        required: true
+        default: 'No information given'
+        type: string
+      build_version:
+        description: 'Build version'
+        required: true
+        type: string
+
+permissions: write-all
+
+jobs:
+  release:
+    name: Release MB V${{ inputs.build_version }}
+    runs-on: self-hosted
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v3
+      - name: "Restore & build project"
+        run: |
+          dotnet build -c Release ./src/AITSYS.RpgMakerMv.DiscordRPC/AITSYS.RpgMakerMv.Rpc.csproj
+      - name: "Publish project"
+        run: |
+          dotnet publish -r win-x64 --self-contained=true -p:PublishSingleFile=true -p:GenerateRuntimeConfigurationFiles=false -c Release -o ./dist/MapBuilder ./src/AITSYS.RpgMakerMv.MapInfos/AITSYS.RpgMakerMv.MapInfos.csproj
+          mkdir ./dist/MapBuilder/AITSYS
+          mkdir ./dist/MapBuilder/AITSYS/Identification
+          mkdir ./dist/MapBuilder/AITSYS/Identification/toolbar
+          cp ./static/icon.png ./dist/MapBuilder/AITSYS/Identification/toolbar/icon.png
+          cp ./static/README-MapBuilder.txt ./dist/MapBuilder/AITSYS/README.txt
+          mv ./dist/MapBuilder/AITSYS.RpgMakerMv.MapInfos.exe ./dist/MapBuilder/AITSYS/WindowBuilder.exe
+          rm ./dist/MapBuilder/*.pdb
+          echo "AITSYS.RpgMakerMv.MapInfos" > ./dist/MapBuilder/AITSYS/Identification/app
+          echo "${{ inputs.build_version }}" >> ./dist/MapBuilder/AITSYS/Identification/app
+          echo "Map Tool for Discord RPC configuration" >> ./dist/MapBuilder/AITSYS/Identification/app
+      - name: "Pack release"
+        working-directory: ./dist/MapBuilder
+        run: |
+          zip -r MapBuilder.zip ./AITSYS
+      - name: "Create GitHub Release"
+        uses: softprops/action-gh-release@v1
+        with:
+          body: RMMV Map Builder Release - ${{ inputs.build_description }}
+          tag_name: rmmv-mapbuilder-v${{ inputs.build_version }}
+          name: RMMV Map Builder v${{ inputs.build_version }}
+          prerelease: true
+          generate_release_notes: true
+          files: |
+            ./dist/MapBuilder/MapBuilder.zip
+            ./static/README-MapBuilder.txt

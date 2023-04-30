@@ -20,7 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RPG Maker MV Plugins", "RPG Maker MV Plugins", "{94FAABDB-8347-4B18-A4D2-1C84E321AFF9}"
 	ProjectSection(SolutionItems) = preProject
-		plugins\AITSYS_RPC.js = plugins\AITSYS_RPC.js
+		src\AITSYS_RPC.js = src\AITSYS_RPC.js
 	EndProjectSection
 EndProject
 Global

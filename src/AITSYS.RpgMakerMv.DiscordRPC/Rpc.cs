@@ -163,35 +163,4 @@ public class Rpc
 		rpc.Dispose();
 		Environment.Exit(0);
 	}
-
-	/*
-		Example Asset when exploring the rotten temple on albehir:
-		Assets = new Assets()
-		{
-			SmallImageKey = "world01-albehir",
-			SmallImageText = "On Albehir",
-			LargeImageKey = "world01-rottentemple",
-			LargeImageText = "Exploring the Rotten Temple"
-		},
-
-		var (LargeMap, SmallMap) = msg.BuildMap();
-		Console.WriteLine($"Main: L::{LargeMap} S::{SmallMap ?? "none"}");
-		byte[] ret = new byte[LargeMap.Length];
-		ret = Encoding.Default.GetBytes("Updating map to: " + LargeMap);
-		rpc.UpdateDetails("Exploring the world");
-		string mapName = LargeMap.ConvertMapName();
-		rpc.UpdateState(mapName);
-		var prefix = SmallMap != null ? SmallMap.GetDiscordAssetPrefix() : LargeMap.GetDiscordAssetPrefix();
-		var la = $"{prefix}{LargeMap.ToLower()}";
-		if (la.EndsWith("wasteland"))
-			la += "s";
-		var sa = SmallMap != null ? prefix + SmallMap.ToLower() : "logo";
-		if (sa.EndsWith("wasteland"))
-			sa += "s";
-		Console.WriteLine($"Updating large asset to: {la}");
-		rpc.UpdateLargeAsset(la, LargeMap);
-		Console.WriteLine($"Updating small asset to: {sa}");
-		rpc.UpdateSmallAsset(sa, "Being a traveler");
-		rpc.SynchronizeState();
-	*/
 }

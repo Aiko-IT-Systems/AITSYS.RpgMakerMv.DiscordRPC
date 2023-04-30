@@ -32,6 +32,7 @@ public class Rpc
 	public static Timestamps s_startedAt { get; private set; } = null!;
 	public static string s_dapp { get; private set; } = "805569792446562334";
 	public static string? s_sapp { get; private set; } = null;
+	public static int s_port { get; private set; } = 59090;
 	public static CancellationTokenSource s_cancellationToken { get; private set; } = new();
 
 	public static async Task Main(string[] args)
@@ -43,13 +44,19 @@ public class Rpc
 					s_dapp = args[i + 1];
 				else if (args[i] == "--sapp")
 					s_sapp = args[i + 1];
+				else if (args[i] == "--port" || args[i] == "-p")
+					if (int.TryParse(args[i + 1], out var port))
+						s_port = port;
+					else
+						Console.WriteLine("Could not parse port");
 			}
 
 		Console.WriteLine("Using following app ids:\n\tDiscord: {0}\n\tSteam: {1}", s_dapp, s_sapp);
+		Console.WriteLine("Starting tcp listener on 127.0.0.1:{0}", s_port);
 
 		s_startedAt = Timestamps.Now;
 
-		TcpListener server = new(IPAddress.Loopback, 59090);
+		TcpListener server = new(IPAddress.Loopback, s_port);
 
 		DiscordRpcClient rpc = new(s_dapp);
 

@@ -61,5 +61,5 @@ jobs:
           files: |
             ./dist/RPC Plugin/AITSYS.RpgMakerMv.Rpc
             ./dist/RPC Plugin/AITSYS.RpgMakerMv.Rpc.exe
-            ./src/AITSYS_RPC.js
+            ./src/AITSYS_RPC-min.js
             ./static/README-RPC.txt

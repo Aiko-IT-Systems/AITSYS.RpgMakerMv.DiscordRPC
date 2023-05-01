@@ -3,7 +3,7 @@ Installation
 ============
 
 The plugin:
-Copy the "AITSYS_RPC.js" file into your "js/plugins" folder in your project.
+Copy the "AITSYS_RPC-min.js" file into your "js/plugins" folder in your project.
 
 The RPC executables:
 Create a new folder called "RPC Plugin" in your deployed project folder.

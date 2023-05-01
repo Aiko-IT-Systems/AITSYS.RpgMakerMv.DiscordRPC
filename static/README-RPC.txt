@@ -26,3 +26,14 @@ You are not allowed to sell this plugin or any modified versions of it.
 You are not allowed to claim this plugin as your own.
 You are not allowed to remove or change the header of this plugin.
 You may edit this plugin and redistribute it, as long as you keep the header.
+
+=======
+Contact
+=======
+
+Maintainer: Lala Sabathil
+Email: aiko@aitsys.dev
+Discord: Catra#9999
+Discord Server: https://discord.gg/Uk7sggRBTm
+Twitter: @laladevichan
+Website: https://aitsys.dev

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33103.201
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AITSYS.RpgMakerMv.Rpc", "src\AITSYS.RpgMakerMv.DiscordRPC\AITSYS.RpgMakerMv.Rpc.csproj", "{C40CC038-9400-4213-B24E-5A3245115F77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AITSYS.RpgMakerMv.Rpc", "src\AITSYS.RpgMakerMv.Rpc\AITSYS.RpgMakerMv.Rpc.csproj", "{C40CC038-9400-4213-B24E-5A3245115F77}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AITSYS.RpgMakerMv.MapInfos", "src\AITSYS.RpgMakerMv.MapInfos\AITSYS.RpgMakerMv.MapInfos.csproj", "{5D2A879F-A2C1-47B0-B017-372AC9C389E6}"
 EndProject

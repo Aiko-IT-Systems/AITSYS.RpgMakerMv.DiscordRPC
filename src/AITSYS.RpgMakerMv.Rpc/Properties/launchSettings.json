@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AITSYS.RpgMakerMv.Rpc": {
+      "commandName": "Project",
+      "commandLineArgs": "--dapp 684577660785000503 --sapp 2184270"
+    }
+  }
+}

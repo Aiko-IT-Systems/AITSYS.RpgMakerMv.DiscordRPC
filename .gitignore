@@ -342,3 +342,5 @@ healthchecksdb
 src/AITSYS.RpgMakerMv.DiscordRPC/Properties/launchSettings.json
 dist/*
 !dist/.gitkeep
+src/AITSYS_RPC.js
+src/AITSYS_RPC.js.map

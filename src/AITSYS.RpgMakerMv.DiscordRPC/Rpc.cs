@@ -30,7 +30,7 @@ public class Rpc
 	public static RpcData? s_defaultData { get; private set; } = null!;
 	public static RpcConfig? s_defaultConfig { get; private set; } = null!;
 	public static Timestamps s_startedAt { get; private set; } = null!;
-	public static string s_dapp { get; private set; } = "805569792446562334";
+	public static string s_dapp { get; private set; } = "805569792446562334"; // Defaults to the "AITSYS RMMV RPC" application in discord, providing default icons.
 	public static string? s_sapp { get; private set; } = null;
 	public static int s_port { get; private set; } = 59090;
 	public static CancellationTokenSource s_cancellationToken { get; private set; } = new();
@@ -76,10 +76,10 @@ public class Rpc
 				State = s_defaultData?.State ?? null,
 				Assets = new()
 				{
-					SmallImageKey = s_defaultData?.SmallAssetKey ?? "logo",
-					SmallImageText = s_defaultData?.SmallAssetText ?? "RMMV Game",
-					LargeImageKey = s_defaultData?.LargeAssetKey,
-					LargeImageText = s_defaultData?.LargeAssetKey
+					SmallImageKey = s_defaultData?.SmallAssetKey ?? "aitsys",
+					SmallImageText = s_defaultData?.SmallAssetText ?? "Powered by AITSYS",
+					LargeImageKey = s_defaultData?.LargeAssetKey ?? "logo",
+					LargeImageText = s_defaultData?.LargeAssetKey ?? "RMMV Game"
 				},
 				Timestamps = s_startedAt,
 				Buttons = buttons

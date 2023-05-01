@@ -22,8 +22,6 @@
 
 using AITSYS.RpgMakerMv.MapInfos.Entities;
 
-using Newtonsoft.Json;
-
 namespace AITSYS.RpgMakerMv.MapInfos;
 
 public class MapWrapper

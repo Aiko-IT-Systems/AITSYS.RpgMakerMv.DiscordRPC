@@ -5,8 +5,6 @@
  * @author Lala Sabathil
  *
  * @version 4.0.0
- * @filename AITSYS_RPC.js
- * @url https://github.com/Aiko-IT-Systems/AITSYS.RpgMakerMv.DiscordRPC/blob/main/src/AITSYS_RPC.js
  *
  * @param --- Default Config ---
  * @default
@@ -153,7 +151,7 @@
  * + Added ignore if rpc isn't running
  * 2023.14.01 (v3.0.0):
  * * Reworked the plugin to control steam dlc
- * 2023.XX.XX (v4.0.0):
+ * 2023.01.05 (v4.0.0):
  * * Rewrote plugin for general use
  */
 var Imported=Imported||{};Imported.AITSYS_RPC=!0;

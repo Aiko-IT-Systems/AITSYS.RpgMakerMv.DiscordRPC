@@ -51,7 +51,7 @@ jobs:
           depot1Path: dist
           releaseBranch: "develop"
       - name: "Create GitHub Release"
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           body: RMMV RPC Release - ${{ inputs.build_description }}
           tag_name: rmmv-rpc-v${{ inputs.build_version }}

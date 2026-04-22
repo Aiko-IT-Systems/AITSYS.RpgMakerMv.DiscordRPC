@@ -11,7 +11,7 @@
     <NoWarn>1701;1702;CA1416;CA1822</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.203" PrivateAssets="All" />
 	<PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
   </ItemGroup>

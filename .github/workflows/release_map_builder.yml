@@ -21,7 +21,11 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: "Setup .NET"
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+            dotnet-version: 10.x
       - name: "Restore & build project"
         run: |
           dotnet build -c Release ./src/AITSYS.RpgMakerMv.MapInfos/AITSYS.RpgMakerMv.MapInfos.csproj
@@ -43,7 +47,7 @@ jobs:
         run: |
           zip -r MapBuilder.zip ./AITSYS
       - name: "Create GitHub Release"
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 #v3.0.2
         with:
           body: RMMV Map Builder Release - ${{ inputs.build_description }}
           tag_name: rmmv-mapbuilder-v${{ inputs.build_version }}

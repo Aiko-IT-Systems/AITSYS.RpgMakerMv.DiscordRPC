@@ -26,7 +26,11 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: "Checkout repository"
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: "Setup .NET"
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+            dotnet-version: 10.x
       - name: "Restore & build project"
         run: |
           dotnet build -c Release ./src/AITSYS.RpgMakerMv.Rpc/AITSYS.RpgMakerMv.Rpc.csproj
@@ -34,16 +38,21 @@ jobs:
         run: |
           dotnet publish -r win-x64 --self-contained=true -p:PublishSingleFile=true -p:GenerateRuntimeConfigurationFiles=false -c Release -o "./dist/RPC Plugin" ./src/AITSYS.RpgMakerMv.Rpc/AITSYS.RpgMakerMv.Rpc.csproj
           dotnet publish -r linux-x64 --self-contained=true -p:PublishSingleFile=true -p:GenerateRuntimeConfigurationFiles=false -c Release -o "./dist/RPC Plugin" ./src/AITSYS.RpgMakerMv.Rpc/AITSYS.RpgMakerMv.Rpc.csproj
+      - name: "Generate TOTP"
+        if: ${{ inputs.upload_to_steam }}
+        uses: CyberAndrii/steam-totp@1661caebf0a84a79be0166020f81837039137101 # v1.2.0
+        id: steam-totp
+        with:
+          shared_secret: ${{ secrets.STEAM_PARTNER_SHARED_SECRET }}
       - name: "Deploy to Steam"
-        uses: lulalaby/steam-deploy@v6
-        if: ${{ inputs.upload_to_steam == true }}
+        uses: game-ci/steam-deploy@50f6b29fc64922e19a16d202a88fe199d394b536 # v3.2.1
+        if: ${{ inputs.upload_to_steam }}
         id: actual_steam_deploy
         with:
           username: ${{ secrets.STEAM_PARTNER_USERNAME }}
           password: ${{ secrets.STEAM_PARTNER_PASSWORD }}
           configVdf: ${{ secrets.STEAM_PARTNER_CONFIG_VDF }}
-          ssfnFileName: ${{ secrets.STEAM_PARTNER_SSFN_FILE_NAME }}
-          ssfnFileContents: ${{ secrets.STEAM_PARTNER_SSFN_FILE_CONTENTS }}
+          totp: ${{ steps.steam-totp.outputs.code }}
           appId: 2184270
           buildDescription: v${{ inputs.build_version }} - ${{ inputs.build_description }}
           rootPath: ./
@@ -51,7 +60,7 @@ jobs:
           depot1Path: dist
           releaseBranch: "develop"
       - name: "Create GitHub Release"
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 #v3.0.2
         with:
           body: RMMV RPC Release - ${{ inputs.build_description }}
           tag_name: rmmv-rpc-v${{ inputs.build_version }}

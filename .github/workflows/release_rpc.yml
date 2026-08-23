@@ -23,7 +23,7 @@ permissions: write-all
 jobs:
   release:
     name: Release RPC V${{ inputs.build_version }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: "Checkout repository"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

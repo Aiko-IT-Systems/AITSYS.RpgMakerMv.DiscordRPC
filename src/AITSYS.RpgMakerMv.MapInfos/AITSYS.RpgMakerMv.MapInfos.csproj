@@ -4,17 +4,20 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+	<NuGetAuditSuppress>true</NuGetAuditSuppress>
+	<NuGetAudit>false</NuGetAudit>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <StartupObject>AITSYS.RpgMakerMv.MapInfos.MapInfoGenerator</StartupObject>
   </PropertyGroup>
 
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1701;1702;CS8618</NoWarn>
+	<NoWarn>1701;1702;NU1701;NU5104;CS2019;NU1605;DCS0102</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <NoWarn>1701;1702;CS8618</NoWarn>
+	<NoWarn>1701;1702;NU1701;NU5104;CS2019;NU1605;DCS0102</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

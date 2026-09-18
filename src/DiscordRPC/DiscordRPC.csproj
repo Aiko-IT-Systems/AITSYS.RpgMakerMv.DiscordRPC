@@ -3,12 +3,16 @@
     <TargetFramework>net10.0</TargetFramework>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <IsPublishable>False</IsPublishable>
+	<NuGetAuditSuppress>true</NuGetAuditSuppress>
+	<NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1701;1702;CA1416;CA1822</NoWarn>
+	<NoWarn>1701;1702;NU1701;NU5104;CS2019;NU1605;DCS0102</NoWarn>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <NoWarn>1701;1702;CA1416;CA1822</NoWarn>
+	<NoWarn>1701;1702;NU1701;NU5104;CS2019;NU1605;DCS0102</NoWarn>
   </PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />

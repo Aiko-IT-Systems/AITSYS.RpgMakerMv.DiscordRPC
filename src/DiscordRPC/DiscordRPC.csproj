@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	<NoWarn>1701;1702;NU1701;NU5104;CS2019;NU1605;DCS0102</NoWarn>
+	<NoWarn>$(NoWarn);NU1510;1701;1702;NU1701;NU5104;CS2019;NU1605;DCS0102</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	<NoWarn>1701;1702;NU1701;NU5104;CS2019;NU1605;DCS0102</NoWarn>
+	<NoWarn>$(NoWarn);NU1510;1701;1702;NU1701;NU5104;CS2019;NU1605;DCS0102</NoWarn>
   </PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
